@@ -19,15 +19,13 @@ function dlog(msg,level) {
         sys.puts(msg);
 }
 
-function gitScoreOutputAnalyzerfunction(err,stdout,stderr){
+function gitScoreOutputAnalyzer(err,stdout,stderr){
 
     if(err)
         return dlog(err,1);
 
     var users = [];
-    var lines = stdout.split('\n')
-    lines.shift();  // Remove first line
-    lines.pop();    // Remove last line
+    var lines = stdout.split('\n').slice(1,-1); // Split to lines and remove first and last lines
 
     lines.forEach(function(line) {
         var user = line.split('\t')
@@ -50,8 +48,8 @@ function clocOutputAnalyzer(error, stdout, stderr) {
 
     if(error)
         return dlog(error,1);
-
-    dlog(stdout,3);
+    else
+        dlog(stdout,3);
 
     var languages = [];
 
@@ -85,8 +83,11 @@ function cloc() {
 
         childProcess.exec('perl ' + clocPath + ' ' + projectsPath[i].path, (function(project){
             return (function(error,stdout,stderr) {
+
                 dlog(project.name + ' at ' + project.path,2)
+
                 clocOutputAnalyzer(error,stdout,stderr);
+
             });
         }) (projectsPath[i]));
     }
@@ -103,8 +104,11 @@ function gitscore() {
 
         childProcess.exec('python ' + gitScorePath, {cwd:wd}, (function(project){
             return (function(error,stdout,stderr) {
-                dlog(project.name + ' at ' + project.path,2)
-                gitScoreOutputAnalyzerfunction(error,stdout,stderr);
+
+                dlog(project.name + ' at ' + project.path,2);
+
+                gitScoreOutputAnalyzer(error,stdout,stderr);
+
             });
         })(projectsPath[i]));
     }
